@@ -2361,7 +2361,7 @@
                                                     setIsLoggedIn(true);
                                                     showToast('Login Berhasil! Selamat Datang.', 'success');
                                                 } else {
-                                                    showToast('silahkan menghubungi operator sekolah Bpk. Andi Nusatjasi, terima kasih', 'error');
+                                                    showToast('pasword yang anda masukan salah, silahkan menghubungi bpk. Andi Nusatjasi, Terima kasih', 'error');
                                                 }
                                             }}>
                                                 <div className="space-y-1.5">
@@ -2408,6 +2408,21 @@
                                 )}
                             </div>
                         </div>
+
+
+                        {toast.visible && (
+                            <div className="fixed inset-0 z-[100] pointer-events-none flex items-center justify-center p-4">
+                                <div className={`
+                                    flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border animate-bounce-in
+                                    ${toast.type === 'error' ? 'bg-red-600 border-red-500 text-white' :
+                                        toast.type === 'info' ? 'bg-blue-600 border-blue-500 text-white' :
+                                            'bg-emerald-600 border-emerald-500 text-white'}
+                                `}>
+                                    {toast.type === 'error' ? <AlertCircle size={24} /> : <CheckCircle size={24} />}
+                                    <span className="font-bold text-sm tracking-wide">{toast.msg}</span>
+                                </div>
+                            </div>
+                        )}
 
                         <style>{`
                             @keyframes marquee {
