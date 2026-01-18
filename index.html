@@ -9,6 +9,9 @@
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Load Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <!-- Konfigurasi Tailwind untuk Font -->
     <script>
         tailwind.config = {
@@ -79,18 +82,13 @@
             ClipboardList, AlertTriangle, FileSignature, Briefcase, Award, Coffee, Info, CheckSquare, Tag, Eye,
             ShieldCheck, Menu, Database, BarChart3, Target, LogOut, EyeOff, Lock
         } from 'https://esm.sh/lucide-react@0.263.1';
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
-
-        // Error detection
-        window.onerror = (msg, url, lineNo, columnNo, error) => {
-            console.error('Window Error:', msg, error);
-            return false;
-        };
 
         // --- KONFIGURASI SUPABASE ---
         const SUPABASE_URL = 'https://cxswdplrojgqlhxfavpd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4c3dkcGxyb2phcWxoeGZhdnBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxNDM4NDgsImV4cCI6MjA3OTcxOTg0OH0.roWFwvGZLxs_auqVow6vxi4s_2z3QJeOv6uNtJk0jP0';
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Gunakan library yang dimuat lewat tag script (Global)
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- KODE APLIKASI ---
 
