@@ -2558,21 +2558,46 @@
                                                 <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest mt-2">Masukkan kredensial anda</p>
                                             </div>
 
-                                            <form className="mt-8 space-y-4 relative z-10" onSubmit={(e) => {
+                                            <form className="mt-8 space-y-4 relative z-10" onSubmit={async (e) => {
                                                 e.preventDefault();
                                                 const fd = new FormData(e.target);
                                                 const user = fd.get('username');
                                                 const pass = fd.get('password');
 
-                                                if (user === adminCredentials.username && pass === adminCredentials.password) {
-                                                    setIsEnteringDashboard(true);
-                                                    setTimeout(() => {
+                                                try {
+                                                    // 1. Ambil Kredensial Terbaru dari Cloud sebelum cek login
+                                                    const { data: cloudData, error } = await supabase
+                                                        .from('app_storage')
+                                                        .select('content')
+                                                        .eq('id', 'smp_admin_credentials')
+                                                        .single();
+
+                                                    let currentCreds = adminCredentials;
+                                                    if (cloudData && cloudData.content) {
+                                                        currentCreds = cloudData.content;
+                                                        setAdminCredentials(currentCreds);
+                                                        localStorage.setItem('smp_admin_credentials', JSON.stringify(currentCreds));
+                                                    }
+
+                                                    // 2. Verifikasi dengan data terbaru
+                                                    if (user === currentCreds.username && pass === currentCreds.password) {
+                                                        setIsEnteringDashboard(true);
+                                                        setTimeout(() => {
+                                                            setIsLoggedIn(true);
+                                                            setIsEnteringDashboard(false);
+                                                            showToast(`Selamat datang kembali, ${user}!`, 'success');
+                                                        }, 2000);
+                                                    } else {
+                                                        showToast('Pasword yang anda masukan salah, silahkan menghubungi operator sekolah Bpk. Andi Nusatjasi, terima kasih', 'error');
+                                                    }
+                                                } catch (err) {
+                                                    console.error("Login sync error:", err);
+                                                    // Jika gagal ambil cloud, gunakan data lokal saja
+                                                    if (user === adminCredentials.username && pass === adminCredentials.password) {
                                                         setIsLoggedIn(true);
-                                                        setIsEnteringDashboard(false);
-                                                        showToast('Login Berhasil! Selamat Datang.', 'success');
-                                                    }, 3000);
-                                                } else {
-                                                    showToast('pasword yang anda masukan salah, silahkan menghubungi bpk. Andi Nusatjasi, Terima kasih', 'error');
+                                                    } else {
+                                                        showToast('Login gagal. Periksa koneksi internet Anda.', 'error');
+                                                    }
                                                 }
                                             }}>
                                                 <div className="space-y-1.5">
