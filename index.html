@@ -72,7 +72,7 @@
     <div id="root"></div>
 
     <script type="text/babel" data-type="module">
-        import React, { useState, useEffect } from 'https://esm.sh/react@18.2.0';
+        import React, { useState, useEffect, useRef } from 'https://esm.sh/react@18.2.0';
         import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client';
         import {
             Plus, Trash2, Save, Calendar, Users, BookOpen,
@@ -131,7 +131,9 @@
             const [isEnteringDashboard, setIsEnteringDashboard] = useState(false);
             const [isExiting, setIsExiting] = useState(false);
             const [isSyncing, setIsSyncing] = useState(false);
+            const [isDataLoaded, setIsDataLoaded] = useState(false);
             const [lastSyncTime, setLastSyncTime] = useState(null);
+            const syncTimeouts = useRef({});
 
             useEffect(() => {
                 localStorage.setItem('smp_is_logged_in', isLoggedIn);
@@ -433,27 +435,34 @@
             }, [pangkatGolonganList]);
 
             const pushToCloud = async (key, data) => {
-                if (!isLoggedIn) return;
-                try {
-                    setIsSyncing(true);
-                    const { error } = await supabase
-                        .from('app_storage')
-                        .upsert({
-                            id: key,
-                            content: data,
-                            updated_at: new Date().toISOString()
-                        });
+                if (!isLoggedIn || !isDataLoaded) return;
 
-                    if (error) {
-                        console.error('Supabase Error:', error);
-                        showToast(`Gagal kirim ke Cloud: ${error.message}`, 'error');
+                // Debounce sync for this specific key
+                if (syncTimeouts.current[key]) clearTimeout(syncTimeouts.current[key]);
+
+                syncTimeouts.current[key] = setTimeout(async () => {
+                    try {
+                        setIsSyncing(true);
+                        const { error } = await supabase
+                            .from('app_storage')
+                            .upsert({
+                                id: key,
+                                content: data,
+                                updated_at: new Date().toISOString()
+                            });
+
+                        if (error) {
+                            console.error('Supabase Error:', error);
+                            showToast(`Gagal kirim ke Cloud: ${error.message}`, 'error');
+                        }
+                        setLastSyncTime(new Date());
+                    } catch (e) {
+                        console.error('Push error:', e);
+                    } finally {
+                        setIsSyncing(false);
+                        delete syncTimeouts.current[key];
                     }
-                    setLastSyncTime(new Date());
-                } catch (e) {
-                    console.error('Push error:', e);
-                } finally {
-                    setIsSyncing(false);
-                }
+                }, 1000); // Wait 1 second before actually pushing
             };
 
             const fetchFromCloud = async () => {
@@ -487,12 +496,15 @@
                         });
                         showToast('Data berhasil disinkronkan dari Cloud', 'info');
                     }
+                    setIsDataLoaded(true);
                 } catch (e) {
                     console.error('Fetch error:', e);
                     // Mute error toast on initial load to prevent annoyance
                     // showToast(`Gagal sinkron awan: ${e.message || 'Cek koneksi'}`, 'error');
                 } finally {
                     setIsSyncing(false);
+                    // Beri jeda 2 detik agar state awal stabil sebelum sinkronisasi aktif
+                    setTimeout(() => setIsDataLoaded(true), 2000);
                 }
             };
 
