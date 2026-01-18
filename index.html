@@ -489,7 +489,8 @@
                     }
                 } catch (e) {
                     console.error('Fetch error:', e);
-                    showToast(`Gagal sinkron awan: ${e.message || 'Cek koneksi'}`, 'error');
+                    // Mute error toast on initial load to prevent annoyance
+                    // showToast(`Gagal sinkron awan: ${e.message || 'Cek koneksi'}`, 'error');
                 } finally {
                     setIsSyncing(false);
                 }
@@ -498,6 +499,21 @@
             useEffect(() => {
                 if (isLoggedIn) fetchFromCloud();
             }, [isLoggedIn]);
+
+            const testConnection = async () => {
+                try {
+                    showToast('Sedang mengetes koneksi...', 'info');
+                    const { data, error } = await supabase.from('app_storage').select('id').limit(1);
+                    if (error) throw error;
+                    showToast('Koneksi Supabase BERHASIL! Database siap digunakan.', 'success');
+                } catch (e) {
+                    console.error('Test Connection Error:', e);
+                    showToast(`Koneksi GAGAL: ${e.message}`, 'error');
+                    if (e.message === 'Failed to fetch') {
+                        alert('Pesan "Failed to fetch" biasanya berarti koneksi Anda diblokir. \n\nTips: \n1. Gunakan Live Server (Go Live) di VS Code. \n2. Matikan AdBlock/VPN. \n3. Pastikan internet aktif.');
+                    }
+                }
+            };
 
             useEffect(() => {
                 if (classes.length > 0 && !selectedClassId) setSelectedClassId(classes[0].id);
@@ -1812,9 +1828,29 @@
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        {/* Database Diagnostic Section */}
+                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 mt-6 mb-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-amber-100 text-amber-600 rounded-lg"><Database size={20} /></div>
+                                    <div>
+                                        <h3 className="font-bold text-slate-800">Status Koneksi Database Cloud</h3>
+                                        <p className="text-xs text-slate-500 font-medium">Pastikan aplikasi terhubung ke Supabase dengan benar.</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={testConnection}
+                                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-amber-100 flex items-center gap-2 active:scale-95"
+                                >
+                                    <RefreshCw size={14} className={isSyncing ? 'animate-spin' : ''} />
+                                    Tes Koneksi Sekarang
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Input Table - 3 Columns wide */}
-                            <div className="lg:col-span-3">
+                            <div className="md:col-span-2">
                                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                                     <div className="p-4 bg-slate-50 border-b flex items-center justify-between">
                                         <div className="flex items-center gap-2">
