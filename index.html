@@ -87,11 +87,8 @@
         const SUPABASE_URL = 'https://cxswdplrojgqlhxfavpd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4c3dkcGxyb2phcWxoeGZhdnBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxNDM4NDgsImV4cCI6MjA3OTcxOTg0OH0.roWFwvGZLxs_auqVow6vxi4s_2z3QJeOv6uNtJk0jP0';
 
-        // Inisialisasi dengan opsi tambahan untuk stabilitas
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: { persistSession: false },
-            global: { headers: { 'x-application-name': 'smp-jadwal' } }
-        });
+        // Inisialisasi Database
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- KODE APLIKASI ---
 
