@@ -442,8 +442,7 @@
 
                     if (error) {
                         console.error('Supabase Error:', error);
-                        // Jangan tampilkan toast error setiap saat agar tidak mengganggu, 
-                        // cukup log ke console atau tampilkan jika memang kritis
+                        showToast(`Gagal kirim ke Cloud: ${error.message}`, 'error');
                     }
                     setLastSyncTime(new Date());
                 } catch (e) {
@@ -486,7 +485,7 @@
                     }
                 } catch (e) {
                     console.error('Fetch error:', e);
-                    showToast('Gagal sinkronisasi awan, menggunakan data lokal.', 'error');
+                    showToast(`Gagal sinkron awan: ${e.message || 'Cek koneksi'}`, 'error');
                 } finally {
                     setIsSyncing(false);
                 }
