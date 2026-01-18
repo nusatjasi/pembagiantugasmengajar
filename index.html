@@ -139,6 +139,20 @@
                 sessionStorage.setItem('smp_is_logged_in', isLoggedIn);
             }, [isLoggedIn]);
 
+            // Ambil Kredensial Terbaru dari Cloud saat halaman pertama kali dibuka
+            useEffect(() => {
+                const syncCreds = async () => {
+                    try {
+                        const { data, error } = await supabase.from('app_storage').select('content').eq('id', 'smp_admin_credentials').single();
+                        if (data && data.content) {
+                            setAdminCredentials(data.content);
+                            localStorage.setItem('smp_admin_credentials', JSON.stringify(data.content));
+                        }
+                    } catch (e) { console.error("Initial cred sync failed", e); }
+                };
+                syncCreds();
+            }, []);
+
             const [showPassword, setShowPassword] = useState(false);
             const [showSettingsPassword, setShowSettingsPassword] = useState(false);
 
@@ -2579,7 +2593,7 @@
                                                         localStorage.setItem('smp_admin_credentials', JSON.stringify(currentCreds));
                                                     }
 
-                                                    // 2. Verifikasi dengan data terbaru
+                                                    // 2. Verifikasi dengan data terbaru (Case Sensitive)
                                                     if (user === currentCreds.username && pass === currentCreds.password) {
                                                         setIsEnteringDashboard(true);
                                                         setTimeout(() => {
@@ -2588,7 +2602,7 @@
                                                             showToast(`Selamat datang kembali, ${user}!`, 'success');
                                                         }, 2000);
                                                     } else {
-                                                        showToast('Pasword yang anda masukan salah, silahkan menghubungi operator sekolah Bpk. Andi Nusatjasi, terima kasih', 'error');
+                                                        showToast('Username atau Password salah. Perhatikan penggunaan huruf besar/kecil!', 'error');
                                                     }
                                                 } catch (err) {
                                                     console.error("Login sync error:", err);
