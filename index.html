@@ -119,7 +119,7 @@
             const [activeTab, setActiveTab] = useState('dashboard');
             const [expandedMenu, setExpandedMenu] = useState(false);
             const [isLoggedIn, setIsLoggedIn] = useState(() => {
-                const saved = localStorage.getItem('smp_is_logged_in');
+                const saved = sessionStorage.getItem('smp_is_logged_in');
                 return saved === 'true';
             });
 
@@ -136,7 +136,7 @@
             const syncTimeouts = useRef({});
 
             useEffect(() => {
-                localStorage.setItem('smp_is_logged_in', isLoggedIn);
+                sessionStorage.setItem('smp_is_logged_in', isLoggedIn);
             }, [isLoggedIn]);
 
             const [showPassword, setShowPassword] = useState(false);
