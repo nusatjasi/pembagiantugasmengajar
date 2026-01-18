@@ -448,6 +448,11 @@
                 pushToCloud('smp_master_pangkat', pangkatGolonganList);
             }, [pangkatGolonganList]);
 
+            useEffect(() => {
+                localStorage.setItem('smp_admin_credentials', JSON.stringify(adminCredentials));
+                pushToCloud('smp_admin_credentials', adminCredentials);
+            }, [adminCredentials]);
+
             const pushToCloud = async (key, data) => {
                 if (!isLoggedIn || !isDataLoaded) return;
 
